@@ -1,0 +1,1 @@
+This is one place you can put sound clips for loldialer to play.  The filename must match the parameter being sent in the request from the Arduino board on the client side.  The code assumes mp3, but it twiml.cgi can be modified to support a different file type supported by Twilio.
