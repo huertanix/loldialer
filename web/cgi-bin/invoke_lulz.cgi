@@ -15,7 +15,7 @@ account = Twilio::RestAccount.new(ACCOUNT_SID, ACCOUNT_TOKEN)
 
 cgi = CGI.new
 soundClip = cgi['clip']
-phoneNumber = cgi['phone']
+phoneNumber = cgi['phone'][0,3] + "-" + cgi['phone'][3,3] + "-" + cgi['phone'][6,4]
 
 # TODO: Check for valid phone format and clip
 requestDeets = {
