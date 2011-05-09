@@ -18,7 +18,7 @@ You must have Ruby 1.8.7 or above installed on a working web server, and also ge
 
 Configure your MAC, IP, and Gateway address in loldialer.pde to match your own ethernet shield and network configuration.
 
-Hardware required and links to purchase said hardware can be found on the HeatSync Labs wiki: http://wiki.heatsynclabs.org/wiki/Loldialer.
+Hardware required and links to purchase said hardware can be found on the HeatSync Labs wiki: http://wiki.heatsynclabs.org/wiki/Loldialer
 
 License
 -------
