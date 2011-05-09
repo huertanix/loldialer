@@ -1,8 +1,6 @@
 /*
-loldialer - a dialer of lulz
-
-David Huerta
-November 22nd, 2010
+loldialer - A dialer of lulz
+Copyright (c) 2011 David Huerta. Distributed under the CDL license: http://supertunaman.com/cdl/
 
 Inspired heavily by David A. Mellis's WebClient example and Alexander Brevig's Keypad library example.
 */

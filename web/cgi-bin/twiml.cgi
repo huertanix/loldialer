@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+#Copyright (c) 2011 David Huerta. Distributed under the CDL license: http://supertunaman.com/cdl/
 
 require 'cgi'
 require 'rubygems'
