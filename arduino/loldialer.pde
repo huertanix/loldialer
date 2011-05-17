@@ -30,7 +30,7 @@ byte mac[] = {0x90,0xA2,0xDA,0x00,0x17,0x1A}; // Replace with your own MAC addre
 //byte ip[] = {172,16,0,77}; // Replace with your own static IP
 //byte gateway[] = {172,16,0,1}; // ...
 //byte subnet[] = {255,255,252,0}; // ...
-byte ip[] = {192,168,34,190}; // Casa de Giles/Huerta/Rix/FuturistMike
+byte ip[] = {192,168,34,190}; // Casa de Giles/Huerta/Rix/Futurist Mike
 byte gateway[] = {192,168,34,1};
 byte subnet[] = {255,255,255,0};
 byte server[] = {192,168,34,69}; // Replace with your web server address
@@ -69,14 +69,16 @@ void loop()
 
   if (keyPressed)
   {
-    if (keyPressed == '#')
+    if (keyPressed == '*') // # and * are reveresed for some reason
     {
       clearDisplay();
       selectFirstLine();
-      Serial.print("LOLDONGS");
-      delay(1000);
+      Serial.print("THE GAME");
+      phoneNumber = "";
+      clip = "";
+      delay(500);
     }
-    else if (keyPressed == '*')
+    else if (keyPressed == '#')
     {
       clearDisplay();
       selectFirstLine();
