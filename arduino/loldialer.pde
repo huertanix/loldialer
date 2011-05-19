@@ -8,23 +8,26 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <Keypad.h>
+#include "HughesyShiftBrite.h"
 
-const int LCDdelay = 1;
 const byte ROWS = 4;
 const byte COLS = 3;
+const int DELAY_VAL = 2;
+const int MAX_SHIFT_VAL = 1023;
 
 char keys[ROWS][COLS] = {
    {'1','2','3'}
   ,{'4','5','6'}
   ,{'7','8','9'}
-  ,{'#','0','*'}
+  ,{'*','0','#'}
 }; // map out the keys
 
-// idk :<
+// map out the pins
 byte rowPins[ROWS] = {5,4,3,2};
 byte colPins[COLS] = {8,7,6};
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
+HughesyShiftBrite shiftBrite;
 
 byte mac[] = {0x90,0xA2,0xDA,0x00,0x17,0x1A}; // Replace with your own MAC address
 //byte ip[] = {172,16,0,77}; // Replace with your own static IP
@@ -33,7 +36,7 @@ byte mac[] = {0x90,0xA2,0xDA,0x00,0x17,0x1A}; // Replace with your own MAC addre
 byte ip[] = {192,168,34,190}; // Casa de Giles/Huerta/Rix/Futurist Mike
 byte gateway[] = {192,168,34,1};
 byte subnet[] = {255,255,255,0};
-byte server[] = {192,168,34,69}; // Replace with your web server address
+byte server[] = {92,168,34,69}; // Replace with your web server address
 
 // Instantiate a network client
 Client client(server, 80);
@@ -53,23 +56,94 @@ void setup()
   Serial.print(0xFE, BYTE);
   Serial.print(4, BYTE);
   delay(4000);
-
   // start the Ethernet connection:
   Ethernet.begin(mac, ip, gateway, subnet);
-
+  // instantiate shiftbrite
+  shiftBrite = HughesyShiftBrite(10,11,12,13);
   // clear screen
   clearDisplay();
 }
 
 void loop()
 {
+//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
+//  {
+//    shiftBrite.sendColour(i,0,0);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
+//  {
+//    shiftBrite.sendColour(i,0,0);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
+//  {
+//    shiftBrite.sendColour(0,i,0);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
+//  {
+//    shiftBrite.sendColour(0,i,0);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
+//  {
+//    shiftBrite.sendColour(0,0,i);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
+//  {
+//    shiftBrite.sendColour(0,0,i);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
+//  {
+//    shiftBrite.sendColour(i,i,0);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
+//  {
+//    shiftBrite.sendColour(i,i,0);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
+//  {
+//    shiftBrite.sendColour(i,0,i);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
+//  {
+//    shiftBrite.sendColour(i,0,i);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
+//  {
+//    shiftBrite.sendColour(0,i,i);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
+//  {
+//    shiftBrite.sendColour(0,i,i);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
+//  {
+//    shiftBrite.sendColour(i,i,i);
+//    delay(DELAY_VAL);
+//  }
+//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
+//  {
+//    shiftBrite.sendColour(i,i,i);
+//    delay(DELAY_VAL);
+//  }
+  
   delay(70); // Delay loop to keep the LCD from redrawing stuff too much
   
   char keyPressed = keypad.getKey(); // need to check press selection on keypad
 
   if (keyPressed)
   {
-    if (keyPressed == '*') // # and * are reveresed for some reason
+    if (keyPressed == '#') // # and * are reveresed for some reason
     {
       clearDisplay();
       selectFirstLine();
@@ -78,7 +152,7 @@ void loop()
       clip = "";
       delay(500);
     }
-    else if (keyPressed == '#')
+    else if (keyPressed == '*')
     {
       clearDisplay();
       selectFirstLine();
@@ -200,7 +274,6 @@ void loop()
 void clearDisplay() {
   Serial.print(0xFE, BYTE);
   Serial.print(0x01, BYTE);
-  //delay(LCDdelay);
 }
 
 void selectFirstLine() {
