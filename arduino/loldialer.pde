@@ -8,12 +8,12 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <Keypad.h>
-#include "HughesyShiftBrite.h"
 
 const byte ROWS = 4;
 const byte COLS = 3;
 const int DELAY_VAL = 2;
 const int MAX_SHIFT_VAL = 1023;
+const int SOFT_RESET_PIN = 12;
 
 char keys[ROWS][COLS] = {
    {'1','2','3'}
@@ -27,22 +27,22 @@ byte rowPins[ROWS] = {5,4,3,2};
 byte colPins[COLS] = {8,7,6};
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
-HughesyShiftBrite shiftBrite;
 
 byte mac[] = {0x90,0xA2,0xDA,0x00,0x17,0x1A}; // Replace with your own MAC address
-//byte ip[] = {172,16,0,77}; // Replace with your own static IP
+//byte ip[] = {172,16,0,77}; // replace with your own static IP
 //byte gateway[] = {172,16,0,1}; // ...
 //byte subnet[] = {255,255,252,0}; // ...
-//byte ip[] = {192,168,34,190}; // Casa de Giles/Huerta/Rix/Futurist Mike
+//byte ip[] = {192,168,34,190}; // casa de Giles/Huerta/Rix/Futurist Mike
 //byte gateway[] = {192,168,34,1};
 //byte subnet[] = {255,255,255,0};
 byte ip[] = {192,168,2,2}; // OS X Cybersauce sharing
 byte gateway[] = {192,168,2,1};
 byte subnet[] = {255,255,255,0};
-byte server[] = {192,168,2,1}; // Replace with your web server address
+byte server[] = {192,168,2,1}; // replace with your web server address
 
-// Instantiate a network client
+// instantiate a network client
 Client client(server, 80);
+int buttonState = 0; // soft reset button state
 String phoneNumber = "";
 String clip = "";
 
@@ -61,86 +61,27 @@ void setup()
   delay(4000);
   // start the Ethernet connection:
   Ethernet.begin(mac, ip, gateway, subnet);
-  // instantiate shiftbrite
-  shiftBrite = HughesyShiftBrite(10,11,12,13);
+  // set up soft reset button
+  pinMode(SOFT_RESET_PIN, INPUT);
+  ////attachInterrupt(0, softReset, CHANGE);
   // clear screen
   clearDisplay();
 }
 
 void loop()
 {
-//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
-//  {
-//    shiftBrite.sendColour(i,0,0);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
-//  {
-//    shiftBrite.sendColour(i,0,0);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
-//  {
-//    shiftBrite.sendColour(0,i,0);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
-//  {
-//    shiftBrite.sendColour(0,i,0);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
-//  {
-//    shiftBrite.sendColour(0,0,i);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
-//  {
-//    shiftBrite.sendColour(0,0,i);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
-//  {
-//    shiftBrite.sendColour(i,i,0);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
-//  {
-//    shiftBrite.sendColour(i,i,0);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
-//  {
-//    shiftBrite.sendColour(i,0,i);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
-//  {
-//    shiftBrite.sendColour(i,0,i);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
-//  {
-//    shiftBrite.sendColour(0,i,i);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
-//  {
-//    shiftBrite.sendColour(0,i,i);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = 0; i <= MAX_SHIFT_VAL; i++)
-//  {
-//    shiftBrite.sendColour(i,i,i);
-//    delay(DELAY_VAL);
-//  }
-//  for (int i = MAX_SHIFT_VAL; i > 0; i--)
-//  {
-//    shiftBrite.sendColour(i,i,i);
-//    delay(DELAY_VAL);
-//  }
+  ////digitalWrite(softResetPin, LOW);
+  // read the state of the reset button value:
+  buttonState = digitalRead(SOFT_RESET_PIN);
   
-  delay(70); // Delay loop to keep the LCD from redrawing stuff too much
+  // check if the pushbutton is pressed (HIGH)
+  if (buttonState == HIGH)
+  {
+    // reset softly
+    softReset();
+  }
+  
+  delay(70); // delay loop to keep the LCD from redrawing stuff too much
   
   char keyPressed = keypad.getKey(); // need to check press selection on keypad
 
@@ -151,8 +92,7 @@ void loop()
       clearDisplay();
       selectFirstLine();
       Serial.print("THE GAME");
-      phoneNumber = "";
-      clip = "";
+      softReset();
       delay(500);
     }
     else if (keyPressed == '*')
@@ -166,11 +106,11 @@ void loop()
     }
     else
     {
-      // Check for complete number
+      // check for complete number
       if (phoneNumber.length() == 10)
       {
         selectSecondLine();
-        // Determine which sound clip to play
+        // determine which sound clip to play
         switch (keyPressed) 
         {
         case '1':
@@ -227,18 +167,18 @@ void loop()
       if (clip == "")
       {
         selectFirstLine();
-        Serial.print("Choose a clip:");
+        Serial.print("Trolling option:");
       }
       else
       {
         selectFirstLine();
         Serial.print("Connecting...");
-        // Proceed to lulz
+        // proceed to lulz
         if (client.connect())
         {
           selectFirstLine();
           Serial.print("Connected.");
-          // Replace with your own cgi path...
+          // replace with your own cgi path...
           client.println("GET /~huertanix/cgi-bin/invoke_lulz.cgi?phone=" + phoneNumber + "&clip=" + clip + " HTTP/1.0");
           client.println();
 
@@ -253,14 +193,14 @@ void loop()
           selectSecondLine();
           Serial.print("Trying...");
         }
-        
-		client.stop();
+        // close connection to ensure proper re-connect
+        client.stop();
       }
     }
     else
     {
       selectFirstLine();
-      Serial.print("Enter a number:");
+      Serial.print("Phone number:");
       
       if (phoneNumber.length() > 0)
       {
@@ -277,12 +217,18 @@ void clearDisplay() {
 }
 
 void selectFirstLine() {
-   Serial.print(0xFE, BYTE);
-   Serial.print(128, BYTE);
+  Serial.print(0xFE, BYTE);
+  Serial.print(128, BYTE);
    //delay(10);
 }
 
 void selectSecondLine() {
-   Serial.print(0xFE, BYTE);
-   Serial.print(192, BYTE);
+  Serial.print(0xFE, BYTE);
+  Serial.print(192, BYTE);
+}
+
+void softReset() {
+  clearDisplay();
+  phoneNumber = "";
+  clip = "";
 }
