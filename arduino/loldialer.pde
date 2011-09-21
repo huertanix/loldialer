@@ -23,12 +23,12 @@ char keys[ROWS][COLS] = {
 }; // map out the keys
 
 // map out the pins
-byte rowPins[ROWS] = {5,4,3,2};
-byte colPins[COLS] = {8,7,6};
+byte rowPins[ROWS] = {8,7,6,5};
+byte colPins[COLS] = {4,3,2};
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-byte mac[] = {0x90,0xA2,0xDA,0x00,0x17,0x1A}; // Replace with your own MAC address
+byte mac[] = {0x90,0xA2,0xDA,0x00,0x68,0x2F}; // Replace with your own MAC address
 //byte ip[] = {172,16,0,77}; // replace with your own static IP
 //byte gateway[] = {172,16,0,1}; // ...
 //byte subnet[] = {255,255,252,0}; // ...
@@ -42,7 +42,7 @@ byte server[] = {192,168,2,1}; // replace with your web server address
 
 // instantiate a network client
 Client client(server, 80);
-int buttonState = 0; // soft reset button state
+int buttonState = LOW; // soft reset button state
 String phoneNumber = "";
 String clip = "";
 
@@ -75,11 +75,11 @@ void loop()
   buttonState = digitalRead(SOFT_RESET_PIN);
   
   // check if the pushbutton is pressed (HIGH)
-  if (buttonState == HIGH)
-  {
-    // reset softly
-    softReset();
-  }
+  ////if (buttonState == HIGH)
+  ////{
+    // reset softly 
+    //softReset(); // FAIL
+  ////}
   
   delay(70); // delay loop to keep the LCD from redrawing stuff too much
   
@@ -92,17 +92,53 @@ void loop()
       clearDisplay();
       selectFirstLine();
       Serial.print("THE GAME");
-      softReset();
       delay(500);
+      softReset();
     }
     else if (keyPressed == '*')
     {
-      clearDisplay();
-      selectFirstLine();
-      Serial.print("i said wut wut");
-      selectSecondLine();
-      Serial.print("in the *");
-      delay(1000);
+      // check for complete number
+      if (phoneNumber.length() == 10)
+      {
+        selectSecondLine();
+        Serial.print("1. Rickroll     ");
+        delay(1000);
+        selectSecondLine();
+        Serial.print("2. Benny Lava   ");
+        delay(1000);
+        selectSecondLine();
+        Serial.print("3. Keyboard Cat ");
+        delay(1000);
+        selectSecondLine();
+        Serial.print("4. Pirate Song  ");
+        delay(1000);
+        selectSecondLine();
+        Serial.print("5. Fridayroll   ");
+        delay(1000);
+        selectSecondLine();
+        Serial.print("6. Trololol     ");
+        delay(1000);
+        selectSecondLine();
+        Serial.print("7. Banana Phone ");
+        delay(1000);
+        selectSecondLine();
+        Serial.print("8. Boxxy        ");
+        delay(1000);
+        selectSecondLine();
+        Serial.print("9. Badger Badger");
+        delay(1000);
+        selectSecondLine();
+        Serial.print("0. Nyan Cat     ");
+        delay(1000);
+      }
+      else
+      {
+        selectFirstLine();
+        Serial.print("i said wut wut");
+        selectSecondLine();
+        Serial.print("in the *");
+        delay(1000);
+      }
     }
     else
     {
@@ -114,40 +150,44 @@ void loop()
         switch (keyPressed) 
         {
         case '1':
-          Serial.print("Rickroll");
+          Serial.print("1. Rickroll     ");
           clip = "rickroll";
           break;
         case '2':
-          Serial.print("Lavaroll");
+          Serial.print("2. Benny Lava   ");
           clip = "lavaroll";
           break;
         case '3':
-          Serial.print("Keyboard Cat");
+          Serial.print("3. Keyboard Cat ");
           clip = "keyboardcat";
           break;
         case '4':
-          Serial.print("Pirate Song");
+          Serial.print("4. Pirate Song  ");
           clip = "piratesong";
           break;
         case '5':
-          Serial.print("Fridayroll");
+          Serial.print("5. Fridayroll   ");
           clip = "fridayroll";
           break;
         case '6':
-          Serial.print("Trololol");
+          Serial.print("6. Trololol     ");
           clip = "trololol";
           break;
         case '7':
-          Serial.print("Banana Phone");
+          Serial.print("7. Banana Phone ");
           clip = "bananaphone";
           break;
         case '8':
-          Serial.print("Boxxy"); // OH GOD WHAT HAVE I DONE
+          Serial.print("8. Boxxy        "); // OH GOD WHAT HAVE I DONE
           clip = "boxxy";
           break;
         case '9':
-          Serial.print("Badger Badger");
+          Serial.print("9. Badger Badger");
           clip = "badgerbadgermushroom";
+          break;
+        case '0':
+          Serial.print("0. Nyan Cat     ");
+          clip = "nyancat";
           break;
         }
         
@@ -168,9 +208,13 @@ void loop()
       {
         selectFirstLine();
         Serial.print("Trolling option:");
+        selectSecondLine();
+        Serial.print("Press * to list");
       }
       else
       {
+        delay(1000); // NEW NEW NEW NEW
+        
         selectFirstLine();
         Serial.print("Connecting...");
         // proceed to lulz
@@ -202,10 +246,14 @@ void loop()
       selectFirstLine();
       Serial.print("Phone number:");
       
+      selectSecondLine();
       if (phoneNumber.length() > 0)
       {
-        selectSecondLine();
         Serial.print(phoneNumber);
+      }
+      else
+      {
+        Serial.print("(full 7 digits)");
       }
     }
   }
