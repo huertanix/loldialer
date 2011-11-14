@@ -22,7 +22,7 @@ Hardware required and links to purchase said hardware can be found on the HeatSy
 
 Voice APIs supported include Twilio and Tropo.  You can choose which one to use in loldialer.pde.  Internet-accessible TwiML files (or using twiml.cgi when if someone gets it to work) are required for Twilio use.   The tropo_handler.rb script is required for Tropo use and must be internet-accessible or set up as a hosted file in your Tropo dashboard.
 
-\* Only required if using Twilio
+\* Only required if using Twilio.
 
 License
 -------
