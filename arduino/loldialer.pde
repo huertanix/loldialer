@@ -45,6 +45,7 @@ Client client(server, 80);
 int buttonState = LOW; // soft reset button state
 String phoneNumber = "";
 String clip = "";
+String callBroker = "twilio"; // case-sensitive, only other option is "tropo"
 
 void setup()
 {
@@ -223,7 +224,7 @@ void loop()
           selectFirstLine();
           Serial.print("Connected.");
           // replace with your own cgi path...
-          client.println("GET /~huertanix/cgi-bin/invoke_lulz.cgi?phone=" + phoneNumber + "&clip=" + clip + " HTTP/1.0");
+          client.println("GET /~huertanix/cgi-bin/" + callBroker + "_request.cgi?phone=" + phoneNumber + "&clip=" + clip + " HTTP/1.0");
           client.println();
 
           selectSecondLine();
