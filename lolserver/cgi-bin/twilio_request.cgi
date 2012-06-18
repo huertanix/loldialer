@@ -24,7 +24,7 @@ if phone =~ /^[\d]{10}$/
       'From' => CALLER_ID,
       'To' => phone,
       #NOTE: This must be a fully qualified URL accesible from cybersauce
-      'Url' => "http://whateveryourwebsiteis.com/loldialer/#{clip}.xml"
+      'Url' => "http://whateveryourwebsiteis.com/lolserver/lulz/#{clip}.xml"
   }
 
   response = account.request("/#{API_VERSION}/Accounts/#{ACCOUNT_SID}/Calls",'POST', request)

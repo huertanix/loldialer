@@ -1,6 +1,6 @@
 /*
   loldialer - A dialer of lulz
-  Copyright (c) 2011 David Huerta. Distributed under the CDL license: http://supertunaman.com/cdl/
+  Copyright (c) 2012 David Huerta. Distributed under the CDL license: http://supertunaman.com/cdl/
  
   Inspired heavily by David A. Mellis's WebClient example and Alexander Brevig's Keypad library example.
 */
@@ -28,20 +28,11 @@ byte colPins[COLS] = {4,3,2};
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-byte mac[] = {0x90,0xA2,0xDA,0x00,0x68,0x2F}; // Replace with your own MAC address
-//byte ip[] = {172,16,0,77}; // replace with your own static IP
-//byte gateway[] = {172,16,0,1}; // ...
-//byte subnet[] = {255,255,252,0}; // ...
-//byte ip[] = {192,168,34,190}; // casa de Giles/Huerta/Rix/Futurist Mike
-//byte gateway[] = {192,168,34,1};
-//byte subnet[] = {255,255,255,0};
-byte ip[] = {192,168,2,2}; // OS X Cybersauce sharing
-byte gateway[] = {192,168,2,1};
-byte subnet[] = {255,255,255,0};
+byte mac[] = {0x90,0xA2,0xDA,0x00,0x68,0x2F}; // replace with your own MAC address
 byte server[] = {192,168,2,1}; // replace with your web server address
 
 // instantiate a network client
-Client client(server, 80);
+EthernetClient client;
 int buttonState = LOW; // soft reset button state
 String phoneNumber = "";
 String clip = "";
@@ -52,16 +43,16 @@ void setup()
   // start the serial library:
   Serial.begin(9600);
   // set display brightness
-  Serial.print(0x7C, BYTE);
-  Serial.print(157, BYTE);
+  Serial.write(0x7C);
+  Serial.write(157);
   // set screen size in case LCD gets derpy...
-  Serial.print(0xFE, BYTE);
-  Serial.print(6, BYTE);
-  Serial.print(0xFE, BYTE);
-  Serial.print(4, BYTE);
+  Serial.write(0xFE);
+  Serial.write(6);
+  Serial.write(0xFE);
+  Serial.write(4);
   delay(4000);
   // start the Ethernet connection:
-  Ethernet.begin(mac, ip, gateway, subnet);
+  Ethernet.begin(mac);
   // set up soft reset button
   pinMode(SOFT_RESET_PIN, INPUT);
   ////attachInterrupt(0, softReset, CHANGE);
@@ -82,13 +73,13 @@ void loop()
     //softReset(); // FAIL
   ////}
   
-  delay(70); // delay loop to keep the LCD from redrawing stuff too much
+  delay(80); // delay loop to keep the LCD from redrawing stuff too much
   
   char keyPressed = keypad.getKey(); // need to check press selection on keypad
 
   if (keyPressed)
   {
-    if (keyPressed == '#') // # and * are reveresed for some reason
+    if (keyPressed == '#') // # and * are reversed for some reason
     {
       clearDisplay();
       selectFirstLine();
@@ -135,10 +126,10 @@ void loop()
       else
       {
         selectFirstLine();
-        Serial.print("i said wut wut");
+        Serial.print("Made in PHX+NYC ");
         selectSecondLine();
-        Serial.print("in the *");
-        delay(1000);
+        Serial.print("By David Huerta ");
+        delay(2000);
       }
     }
     else
@@ -218,13 +209,16 @@ void loop()
         
         selectFirstLine();
         Serial.print("Connecting...");
+        
+        client.stop();
+        
         // proceed to lulz
-        if (client.connect())
+        if (client.connect(server, 80))
         {
           selectFirstLine();
           Serial.print("Connected.");
           // replace with your own cgi path...
-          client.println("GET /~huertanix/cgi-bin/" + callBroker + "_request.cgi?phone=" + phoneNumber + "&clip=" + clip + " HTTP/1.0");
+          client.println("GET /~lolserver/cgi-bin/" + callBroker + "_request.cgi?phone=" + phoneNumber + "&clip=" + clip + " HTTP/1.0");
           client.println();
 
           selectSecondLine();
@@ -254,26 +248,26 @@ void loop()
       }
       else
       {
-        Serial.print("(full 7 digits)");
+        Serial.print("(full 10 digits)");
       }
     }
   }
 }
 
 void clearDisplay() {
-  Serial.print(0xFE, BYTE);
-  Serial.print(0x01, BYTE);
+  Serial.write(0xFE);
+  Serial.write(0x01);
 }
 
 void selectFirstLine() {
-  Serial.print(0xFE, BYTE);
-  Serial.print(128, BYTE);
+  Serial.write(0xFE);
+  Serial.write(128);
    //delay(10);
 }
 
 void selectSecondLine() {
-  Serial.print(0xFE, BYTE);
-  Serial.print(192, BYTE);
+  Serial.write(0xFE);
+  Serial.write(192);
 }
 
 void softReset() {
