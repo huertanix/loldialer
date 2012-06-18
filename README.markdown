@@ -1,7 +1,7 @@
 loldialer!
 ==========
 
-loldialer is a project devised by David Huerta at HeatSync Labs to create a means to troll people's phones with Arduino, Ruby, and Twilio. All this in a tin box with a laser-cut interface.
+loldialer is a project devised by David Huerta at HeatSync Labs to create a means to troll people's phones with Arduino, Ruby, and Twilio. All this in a sexy laser-cut interface.
 
 **NOTE:** This is a weapon of mass-trolling.  Like all technology, it is a tool that is only as good or evil or Beyond Good and Evil as the person using it.
 
