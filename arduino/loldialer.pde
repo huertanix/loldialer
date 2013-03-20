@@ -209,7 +209,7 @@ void selectFirstLine() {
 }
 
 void selectSecondLine() {
-  Serial.write(0xFE,);
+  Serial.write(0xFE);
   Serial.write(192);
 }
 
