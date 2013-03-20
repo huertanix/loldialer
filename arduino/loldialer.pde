@@ -28,20 +28,14 @@ byte colPins[COLS] = {8,7,6};
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-byte mac[] = {0x90,0xA2,0xDA,0x00,0x17,0x1A}; // Replace with your own MAC address
-//byte ip[] = {172,16,0,77}; // replace with your own static IP
-//byte gateway[] = {172,16,0,1}; // ...
-//byte subnet[] = {255,255,252,0}; // ...
-//byte ip[] = {192,168,34,190}; // casa de Giles/Huerta/Rix/Futurist Mike
-//byte gateway[] = {192,168,34,1};
-//byte subnet[] = {255,255,255,0};
-byte ip[] = {192,168,2,2}; // OS X Cybersauce sharing
-byte gateway[] = {192,168,2,1};
-byte subnet[] = {255,255,255,0};
-byte server[] = {192,168,2,1}; // replace with your web server address
+byte mac[] = {0x90,0xA2,0xDA,0x00,0xDE,0x22};
+byte ip[] = {172,22,110,97}; 
+byte gateway[] = {172,22,110,1};
+byte subnet[] = {255,255,254,0};
+byte server[] = {50,56,124,136};
 
 // instantiate a network client
-Client client(server, 80);
+EthernetClient client;
 int buttonState = 0; // soft reset button state
 String phoneNumber = "";
 String clip = "";
@@ -51,13 +45,13 @@ void setup()
   // start the serial library:
   Serial.begin(9600);
   // set display brightness
-  Serial.print(0x7C, BYTE);
-  Serial.print(157, BYTE);
+  Serial.write(0x7C);
+  Serial.write(157);
   // set screen size in case LCD gets derpy...
-  Serial.print(0xFE, BYTE);
-  Serial.print(6, BYTE);
-  Serial.print(0xFE, BYTE);
-  Serial.print(4, BYTE);
+  Serial.write(0xFE);
+  Serial.write(6);
+  Serial.write(0xFE);
+  Serial.write(4);
   delay(4000);
   // start the Ethernet connection:
   Ethernet.begin(mac, ip, gateway, subnet);
@@ -174,7 +168,7 @@ void loop()
         selectFirstLine();
         Serial.print("Connecting...");
         // proceed to lulz
-        if (client.connect())
+        if (client.connect(server,80))
         {
           selectFirstLine();
           Serial.print("Connected.");
@@ -212,19 +206,19 @@ void loop()
 }
 
 void clearDisplay() {
-  Serial.print(0xFE, BYTE);
-  Serial.print(0x01, BYTE);
+  Serial.write(0xFE);
+  Serial.write(0x01);
 }
 
 void selectFirstLine() {
-  Serial.print(0xFE, BYTE);
-  Serial.print(128, BYTE);
+  Serial.write(0xFE);
+  Serial.write(128);
    //delay(10);
 }
 
 void selectSecondLine() {
-  Serial.print(0xFE, BYTE);
-  Serial.print(192, BYTE);
+  Serial.write(0xFE,);
+  Serial.write(192);
 }
 
 void softReset() {
