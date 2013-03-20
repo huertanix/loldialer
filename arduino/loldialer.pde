@@ -13,7 +13,7 @@ const byte ROWS = 4;
 const byte COLS = 3;
 const int DELAY_VAL = 2;
 const int MAX_SHIFT_VAL = 1023;
-const int SOFT_RESET_PIN = 12;
+const int SOFT_RESET_PIN = 2;
 
 char keys[ROWS][COLS] = {
    {'1','2','3'}
@@ -47,25 +47,17 @@ void setup()
   delay(500);
   // start the Ethernet connection:
   Ethernet.begin(mac, ip, gateway, subnet);
-  // set up soft reset button
-  pinMode(SOFT_RESET_PIN, INPUT);
-  ////attachInterrupt(0, softReset, CHANGE);
+
+  pinMode(SOFT_RESET_PIN,INPUT); //necessary?
+  digitalWrite(SOFT_RESET_PIN,HIGH); //pullup resistor
+  attachInterrupt(0,softReset, LOW); // use interrupt 0 (pin 2) and run function
+
   // clear screen
   clearDisplay();
 }
 
 void loop()
 {
-  ////digitalWrite(softResetPin, LOW);
-  // read the state of the reset button value:
-  buttonState = digitalRead(SOFT_RESET_PIN);
-  
-  // check if the pushbutton is pressed (HIGH)
-  if (buttonState == HIGH)
-  {
-    // reset softly
-    softReset();
-  }
   
   delay(70); // delay loop to keep the LCD from redrawing stuff too much
   
