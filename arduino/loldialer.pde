@@ -44,15 +44,7 @@ void setup()
 {
   // start the serial library:
   Serial.begin(9600);
-  // set display brightness
-  Serial.write(0x7C);
-  Serial.write(157);
-  // set screen size in case LCD gets derpy...
-  Serial.write(0xFE);
-  Serial.write(6);
-  Serial.write(0xFE);
-  Serial.write(4);
-  delay(4000);
+  delay(500);
   // start the Ethernet connection:
   Ethernet.begin(mac, ip, gateway, subnet);
   // set up soft reset button
