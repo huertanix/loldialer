@@ -53,6 +53,8 @@ void setup()
   // start the Ethernet connection:
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
+    clearDisplay();
+    mySerial.print("Can't get an IP!");  
     // no point in carrying on, so do nothing forevermore:
     for(;;)
       ;
@@ -165,6 +167,7 @@ void loop()
       }
       else
       {
+        clearDisplay();
         selectFirstLine();
         mySerial.print("Connecting...");
         Serial.println("Connecting...");
@@ -188,8 +191,7 @@ void loop()
           mySerial.print("Great Success!");
           Serial.println("Great Success");
           delay(5000);
-          phoneNumber = "";
-          clip = "";
+          softReset();
         }
         else if (tryCount++<3)
         {
