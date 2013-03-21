@@ -33,9 +33,6 @@ byte colPins[COLS] = {9,8,7};
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 byte mac[] = {0x90,0xA2,0xDA,0x00,0xDE,0x22};
-byte ip[] = {172,22,110,97}; 
-byte gateway[] = {172,22,110,1};
-byte subnet[] = {255,255,254,0};
 byte server[] = {50,56,124,136};
 
 // instantiate a network client
@@ -51,8 +48,16 @@ void setup()
   // start the serial library:
   mySerial.begin(9600);
   delay(500);
+
   // start the Ethernet connection:
-  Ethernet.begin(mac, ip, gateway, subnet);
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    // no point in carrying on, so do nothing forevermore:
+    for(;;)
+      ;
+  }
+  // give the Ethernet shield a second to initialize:
+  delay(1000);
 
   pinMode(SOFT_RESET_PIN,INPUT); //necessary?
   digitalWrite(SOFT_RESET_PIN,HIGH); //pullup resistor
@@ -169,7 +174,10 @@ void loop()
           mySerial.print("Connected.");
           Serial.println("Connected.");
           // replace with your own cgi path...
-          client.println("GET /~huertanix/cgi-bin/invoke_lulz.cgi?phone=" + phoneNumber + "&clip=" + clip + " HTTP/1.0");
+          String troll = "GET /~huertanix/cgi-bin/invoke_lulz.cgi?phone=" + phoneNumber + "&clip=" + clip + " HTTP/1.0";
+          Serial.print("Trolling web url: ");
+          Serial.println(troll);
+          client.println(troll);
           client.println();
 
           selectSecondLine();
