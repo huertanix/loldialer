@@ -39,6 +39,7 @@ byte server[] = {50,56,124,136};
 EthernetClient client;
 String phoneNumber = "";
 String clip = "";
+int tryCount=0;
 
 void setup()
 {
@@ -170,9 +171,12 @@ void loop()
         // proceed to lulz
         if (client.connect(server,80))
         {
+
+          clearDisplay();
           selectFirstLine();
           mySerial.print("Connected.");
           Serial.println("Connected.");
+
           // replace with your own cgi path...
           String troll = "GET /~huertanix/cgi-bin/invoke_lulz.cgi?phone=" + phoneNumber + "&clip=" + clip + " HTTP/1.0";
           Serial.print("Trolling web url: ");
@@ -187,10 +191,18 @@ void loop()
           phoneNumber = "";
           clip = "";
         }
-        else
+        else if (tryCount++<3)
         {
           selectSecondLine();
           mySerial.print("Trying...");
+        }
+        else{
+          selectFirstLine();
+          mySerial.print("Please contact");
+          selectFirstLine();
+          mySerial.print("the manufacturer");
+          delay(2000);
+          softReset();
         }
         // close connection to ensure proper re-connect
         client.stop();
@@ -228,6 +240,7 @@ void selectSecondLine() {
 }
 
 void softReset() {
+  tryCount=0;
   clearDisplay();
   phoneNumber = "";
   clip = "";
