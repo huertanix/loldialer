@@ -8,6 +8,10 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <Keypad.h>
+#include <SoftwareSerial.h>
+
+ // Attach the serial display's RX line to digital pin 2
+SoftwareSerial mySerial(11,10); // pin 9 = TX, pin 10 = RX (unused)
 
 const byte ROWS = 4;
 const byte COLS = 3;
@@ -36,14 +40,16 @@ byte server[] = {50,56,124,136};
 
 // instantiate a network client
 EthernetClient client;
-int buttonState = 0; // soft reset button state
 String phoneNumber = "";
 String clip = "";
 
 void setup()
 {
-  // start the serial library:
   Serial.begin(9600);
+  Serial.println("setting up");
+  
+  // start the serial library:
+  mySerial.begin(9600);
   delay(500);
   // start the Ethernet connection:
   Ethernet.begin(mac, ip, gateway, subnet);
@@ -54,6 +60,7 @@ void setup()
 
   // clear screen
   clearDisplay();
+  Serial.println("setup finished");
 }
 
 void loop()
@@ -62,14 +69,16 @@ void loop()
   delay(70); // delay loop to keep the LCD from redrawing stuff too much
   
   char keyPressed = keypad.getKey(); // need to check press selection on keypad
-
+  Serial.print("keyPressed: ");
+  Serial.println(keyPressed);
+  
   if (keyPressed)
   {
     if (keyPressed == '#') // # and * are reveresed for some reason
     {
       clearDisplay();
       selectFirstLine();
-      Serial.print("THE GAME");
+      mySerial.print("THE GAME");
       softReset();
       delay(500);
     }
@@ -77,9 +86,9 @@ void loop()
     {
       clearDisplay();
       selectFirstLine();
-      Serial.print("i said wut wut");
+      mySerial.print("i said wut wut");
       selectSecondLine();
-      Serial.print("in the *");
+      mySerial.print("in the *");
       delay(1000);
     }
     else
@@ -92,39 +101,39 @@ void loop()
         switch (keyPressed) 
         {
         case '1':
-          Serial.print("Rickroll");
+          mySerial.print("Rickroll");
           clip = "rickroll";
           break;
         case '2':
-          Serial.print("Lavaroll");
+          mySerial.print("Lavaroll");
           clip = "lavaroll";
           break;
         case '3':
-          Serial.print("Keyboard Cat");
+          mySerial.print("Keyboard Cat");
           clip = "keyboardcat";
           break;
         case '4':
-          Serial.print("Pirate Song");
+          mySerial.print("Pirate Song");
           clip = "piratesong";
           break;
         case '5':
-          Serial.print("Fridayroll");
+          mySerial.print("Fridayroll");
           clip = "fridayroll";
           break;
         case '6':
-          Serial.print("Trololol");
+          mySerial.print("Trololol");
           clip = "trololol";
           break;
         case '7':
-          Serial.print("Banana Phone");
+          mySerial.print("Banana Phone");
           clip = "bananaphone";
           break;
         case '8':
-          Serial.print("Boxxy"); // OH GOD WHAT HAVE I DONE
+          mySerial.print("Boxxy"); // OH GOD WHAT HAVE I DONE
           clip = "boxxy";
           break;
         case '9':
-          Serial.print("Badger Badger");
+          mySerial.print("Badger Badger");
           clip = "badgerbadgermushroom";
           break;
         }
@@ -145,23 +154,27 @@ void loop()
       if (clip == "")
       {
         selectFirstLine();
-        Serial.print("Trolling option:");
+        mySerial.print("Trolling option:");
+        Serial.println("Trolling option");
       }
       else
       {
         selectFirstLine();
-        Serial.print("Connecting...");
+        mySerial.print("Connecting...");
+        Serial.println("Connecting...");
         // proceed to lulz
         if (client.connect(server,80))
         {
           selectFirstLine();
-          Serial.print("Connected.");
+          mySerial.print("Connected.");
+          Serial.println("Connected.");
           // replace with your own cgi path...
           client.println("GET /~huertanix/cgi-bin/invoke_lulz.cgi?phone=" + phoneNumber + "&clip=" + clip + " HTTP/1.0");
           client.println();
 
           selectSecondLine();
-          Serial.print("Great Success!");
+          mySerial.print("Great Success!");
+          Serial.println("Great Success");
           delay(5000);
           phoneNumber = "";
           clip = "";
@@ -169,7 +182,7 @@ void loop()
         else
         {
           selectSecondLine();
-          Serial.print("Trying...");
+          mySerial.print("Trying...");
         }
         // close connection to ensure proper re-connect
         client.stop();
@@ -178,31 +191,32 @@ void loop()
     else
     {
       selectFirstLine();
-      Serial.print("Phone number:");
+      mySerial.print("Phone number:");
+      Serial.println("Phone number:");
       
       if (phoneNumber.length() > 0)
       {
         selectSecondLine();
-        Serial.print(phoneNumber);
+        mySerial.print(phoneNumber);
       }
     }
   }
 }
 
 void clearDisplay() {
-  Serial.write(0xFE);
-  Serial.write(0x01);
+  mySerial.write(0xFE);
+  mySerial.write(0x01);
 }
 
 void selectFirstLine() {
-  Serial.write(0xFE);
-  Serial.write(128);
+  mySerial.write(0xFE);
+  mySerial.write(128);
    //delay(10);
 }
 
 void selectSecondLine() {
-  Serial.write(0xFE);
-  Serial.write(192);
+  mySerial.write(0xFE);
+  mySerial.write(192);
 }
 
 void softReset() {
