@@ -32,8 +32,8 @@ byte colPins[COLS] = {9,8,7};
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-byte mac[] = {0x90,0xA2,0xDA,0x00,0xDE,0x22};
-byte server[] = {50,56,124,136};
+byte mac[] = {0x90,0xA2,0xDA,0x00,0x17,0x1A}; // Replace with your own MAC address
+byte server[] = {192,168,2,1}; // replace with your web server address
 
 // instantiate a network client
 EthernetClient client;
