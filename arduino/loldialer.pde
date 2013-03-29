@@ -8,12 +8,16 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <Keypad.h>
+#include <SoftwareSerial.h>
+
+ // Attach the serial display's RX line to digital pin 2
+SoftwareSerial mySerial(11,10); // pin 9 = TX, pin 10 = RX (unused)
 
 const byte ROWS = 4;
 const byte COLS = 3;
 const int DELAY_VAL = 2;
 const int MAX_SHIFT_VAL = 1023;
-const int SOFT_RESET_PIN = 12;
+const int SOFT_RESET_PIN = 2;
 
 char keys[ROWS][COLS] = {
    {'1','2','3'}
@@ -23,75 +27,66 @@ char keys[ROWS][COLS] = {
 }; // map out the keys
 
 // map out the pins
-byte rowPins[ROWS] = {5,4,3,2};
-byte colPins[COLS] = {8,7,6};
+byte rowPins[ROWS] = {6,5,4,3};
+byte colPins[COLS] = {9,8,7};
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 byte mac[] = {0x90,0xA2,0xDA,0x00,0x17,0x1A}; // Replace with your own MAC address
-//byte ip[] = {172,16,0,77}; // replace with your own static IP
-//byte gateway[] = {172,16,0,1}; // ...
-//byte subnet[] = {255,255,252,0}; // ...
-//byte ip[] = {192,168,34,190}; // casa de Giles/Huerta/Rix/Futurist Mike
-//byte gateway[] = {192,168,34,1};
-//byte subnet[] = {255,255,255,0};
-byte ip[] = {192,168,2,2}; // OS X Cybersauce sharing
-byte gateway[] = {192,168,2,1};
-byte subnet[] = {255,255,255,0};
 byte server[] = {192,168,2,1}; // replace with your web server address
 
 // instantiate a network client
-Client client(server, 80);
-int buttonState = 0; // soft reset button state
+EthernetClient client;
 String phoneNumber = "";
 String clip = "";
+int tryCount=0;
 
 void setup()
 {
-  // start the serial library:
   Serial.begin(9600);
-  // set display brightness
-  Serial.print(0x7C, BYTE);
-  Serial.print(157, BYTE);
-  // set screen size in case LCD gets derpy...
-  Serial.print(0xFE, BYTE);
-  Serial.print(6, BYTE);
-  Serial.print(0xFE, BYTE);
-  Serial.print(4, BYTE);
-  delay(4000);
+  Serial.println("setting up");
+  
+  // start the serial library:
+  mySerial.begin(9600);
+  delay(500);
+
   // start the Ethernet connection:
-  Ethernet.begin(mac, ip, gateway, subnet);
-  // set up soft reset button
-  pinMode(SOFT_RESET_PIN, INPUT);
-  ////attachInterrupt(0, softReset, CHANGE);
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    clearDisplay();
+    mySerial.print("Can't get an IP!");  
+    // no point in carrying on, so do nothing forevermore:
+    for(;;)
+      ;
+  }
+  // give the Ethernet shield a second to initialize:
+  delay(1000);
+
+  pinMode(SOFT_RESET_PIN,INPUT); //necessary?
+  digitalWrite(SOFT_RESET_PIN,HIGH); //pullup resistor
+  attachInterrupt(0,softReset, LOW); // use interrupt 0 (pin 2) and run function
+
   // clear screen
   clearDisplay();
+  Serial.println("setup finished");
 }
 
 void loop()
 {
-  ////digitalWrite(softResetPin, LOW);
-  // read the state of the reset button value:
-  buttonState = digitalRead(SOFT_RESET_PIN);
-  
-  // check if the pushbutton is pressed (HIGH)
-  if (buttonState == HIGH)
-  {
-    // reset softly
-    softReset();
-  }
   
   delay(70); // delay loop to keep the LCD from redrawing stuff too much
   
   char keyPressed = keypad.getKey(); // need to check press selection on keypad
-
+  Serial.print("keyPressed: ");
+  Serial.println(keyPressed);
+  
   if (keyPressed)
   {
     if (keyPressed == '#') // # and * are reveresed for some reason
     {
       clearDisplay();
       selectFirstLine();
-      Serial.print("THE GAME");
+      mySerial.print("THE GAME");
       softReset();
       delay(500);
     }
@@ -99,9 +94,9 @@ void loop()
     {
       clearDisplay();
       selectFirstLine();
-      Serial.print("i said wut wut");
+      mySerial.print("i said wut wut");
       selectSecondLine();
-      Serial.print("in the *");
+      mySerial.print("in the *");
       delay(1000);
     }
     else
@@ -114,39 +109,39 @@ void loop()
         switch (keyPressed) 
         {
         case '1':
-          Serial.print("Rickroll");
+          mySerial.print("Rickroll");
           clip = "rickroll";
           break;
         case '2':
-          Serial.print("Lavaroll");
+          mySerial.print("Lavaroll");
           clip = "lavaroll";
           break;
         case '3':
-          Serial.print("Keyboard Cat");
+          mySerial.print("Keyboard Cat");
           clip = "keyboardcat";
           break;
         case '4':
-          Serial.print("Pirate Song");
+          mySerial.print("Pirate Song");
           clip = "piratesong";
           break;
         case '5':
-          Serial.print("Fridayroll");
+          mySerial.print("Fridayroll");
           clip = "fridayroll";
           break;
         case '6':
-          Serial.print("Trololol");
+          mySerial.print("Trololol");
           clip = "trololol";
           break;
         case '7':
-          Serial.print("Banana Phone");
+          mySerial.print("Banana Phone");
           clip = "bananaphone";
           break;
         case '8':
-          Serial.print("Boxxy"); // OH GOD WHAT HAVE I DONE
+          mySerial.print("Boxxy"); // OH GOD WHAT HAVE I DONE
           clip = "boxxy";
           break;
         case '9':
-          Serial.print("Badger Badger");
+          mySerial.print("Badger Badger");
           clip = "badgerbadgermushroom";
           break;
         }
@@ -167,31 +162,49 @@ void loop()
       if (clip == "")
       {
         selectFirstLine();
-        Serial.print("Trolling option:");
+        mySerial.print("Trolling option:");
+        Serial.println("Trolling option");
       }
       else
       {
+        clearDisplay();
         selectFirstLine();
-        Serial.print("Connecting...");
+        mySerial.print("Connecting...");
+        Serial.println("Connecting...");
         // proceed to lulz
-        if (client.connect())
+        if (client.connect(server,80))
         {
+
+          clearDisplay();
           selectFirstLine();
-          Serial.print("Connected.");
+          mySerial.print("Connected.");
+          Serial.println("Connected.");
+
           // replace with your own cgi path...
-          client.println("GET /~huertanix/cgi-bin/invoke_lulz.cgi?phone=" + phoneNumber + "&clip=" + clip + " HTTP/1.0");
+          String troll = "GET /~huertanix/cgi-bin/invoke_lulz.cgi?phone=" + phoneNumber + "&clip=" + clip + " HTTP/1.0";
+          Serial.print("Trolling web url: ");
+          Serial.println(troll);
+          client.println(troll);
           client.println();
 
           selectSecondLine();
-          Serial.print("Great Success!");
+          mySerial.print("Great Success!");
+          Serial.println("Great Success");
           delay(5000);
-          phoneNumber = "";
-          clip = "";
+          softReset();
         }
-        else
+        else if (tryCount++<3)
         {
           selectSecondLine();
-          Serial.print("Trying...");
+          mySerial.print("Trying...");
+        }
+        else{
+          selectFirstLine();
+          mySerial.print("Please contact");
+          selectFirstLine();
+          mySerial.print("the manufacturer");
+          delay(2000);
+          softReset();
         }
         // close connection to ensure proper re-connect
         client.stop();
@@ -200,34 +213,36 @@ void loop()
     else
     {
       selectFirstLine();
-      Serial.print("Phone number:");
+      mySerial.print("Phone number:");
+      Serial.println("Phone number:");
       
       if (phoneNumber.length() > 0)
       {
         selectSecondLine();
-        Serial.print(phoneNumber);
+        mySerial.print(phoneNumber);
       }
     }
   }
 }
 
 void clearDisplay() {
-  Serial.print(0xFE, BYTE);
-  Serial.print(0x01, BYTE);
+  mySerial.write(0xFE);
+  mySerial.write(0x01);
 }
 
 void selectFirstLine() {
-  Serial.print(0xFE, BYTE);
-  Serial.print(128, BYTE);
+  mySerial.write(0xFE);
+  mySerial.write(128);
    //delay(10);
 }
 
 void selectSecondLine() {
-  Serial.print(0xFE, BYTE);
-  Serial.print(192, BYTE);
+  mySerial.write(0xFE);
+  mySerial.write(192);
 }
 
 void softReset() {
+  tryCount=0;
   clearDisplay();
   phoneNumber = "";
   clip = "";
